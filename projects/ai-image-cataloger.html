@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Image Cataloger · Himesh Vats</title>
+<meta name="description" content="AI Image Cataloger: a privacy-first tool that tags product images with local vision LLMs. Built by Himesh Vats.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#06070a;
+  --ink:#eceef3;
+  --mute:#9aa0ab;
+  --faint:#5b616d;
+  --line:rgba(206,220,245,.12);
+  --line-2:rgba(206,220,245,.22);
+  --card:rgba(255,255,255,.035);
+  --ice:#bfd6ff;
+  --ice-dim:#7f95b8;
+  --wp:#dcc394;               /* waypoint 03 colour, same as the neural network on the main page */
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Geist", "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono:"Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gutter:clamp(16px, 4vw, 56px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ice);outline-offset:3px;border-radius:4px}
+img{max-width:100%;display:block}
+
+/* the same floor grid as the walk, fading out below the header */
+.floor{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px, transparent 1px),linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:56px 56px;
+  -webkit-mask-image:radial-gradient(90% 70% at 70% 0%, #000 0%, transparent 70%);
+          mask-image:radial-gradient(90% 70% at 70% 0%, #000 0%, transparent 70%);
+  opacity:.55}
+
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding-inline:var(--gutter);padding-block:calc(28px + env(safe-area-inset-top,0px)) 72px;display:flex;flex-direction:column;gap:56px}
+
+.back{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font:500 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);text-decoration:none;padding:8px 14px;border:1px solid var(--line-2);border-radius:999px;transition:color .2s,border-color .2s}
+.back:hover{color:var(--ink);border-color:var(--ink)}
+
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--wp);display:flex;gap:10px;align-items:center;margin:0}
+.eyebrow::before{content:"";width:18px;height:1px;background:currentColor}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.025em}
+h1{font-size:clamp(2.6rem, 6.4vw, 5rem);line-height:.95;font-weight:800}
+h2{font-size:clamp(1.5rem, 2.6vw, 2rem);line-height:1.1;font-weight:600}
+h3{font-size:1.05rem;line-height:1.25;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(24px,5vw,64px);align-items:end}
+.hero-text{display:flex;flex-direction:column;gap:20px}
+.lede{color:var(--mute);font-size:1.12rem;max-width:52ch}
+.facts{margin:0;display:grid;grid-template-columns:auto 1fr;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:rgba(9,11,15,.7)}
+.facts dt,.facts dd{padding:13px 16px;border-bottom:1px solid var(--line)}
+.facts dt{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding-top:15px}
+.facts dd{margin:0;font-size:15px}
+.facts dt:nth-last-of-type(1),.facts dd:nth-last-of-type(1){border-bottom:none}
+
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font:500 14px var(--body);padding:11px 18px;border-radius:999px;text-decoration:none;border:1px solid var(--line-2);color:var(--ink);transition:background .2s,color .2s,border-color .2s}
+.btn:hover{border-color:var(--ink)}
+.btn.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.solid:hover{background:var(--wp);border-color:var(--wp)}
+.btn svg{width:14px;height:14px}
+
+/* screenshots */
+.shots{display:flex;flex-direction:column;gap:20px}
+.shot{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0b0d12;display:flex;flex-direction:column}
+.shot .frame{background:repeating-linear-gradient(135deg, rgba(220,195,148,.05) 0 12px, transparent 12px 24px)}
+.shot img{width:100%;height:auto}   /* full width, natural height: nothing is cropped */
+.shot .missing{aspect-ratio:16/9;display:grid;place-items:center;font:12px var(--mono);color:var(--faint);text-align:center;padding:16px;line-height:1.5}
+.shot figcaption{font-size:13px;color:var(--mute);padding:10px 14px;border-top:1px solid var(--line)}
+
+.section{display:flex;flex-direction:column;gap:22px}
+.section-head{display:flex;flex-direction:column;gap:8px}
+.section-head p{color:var(--mute);max-width:60ch}
+
+.features{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.features li{background:rgba(8,10,14,.92);padding:20px 20px 22px;display:flex;flex-direction:column;gap:8px}
+.features .ix{font:12px var(--mono);color:var(--wp);font-variant-numeric:tabular-nums}
+.features p{color:var(--mute);font-size:14.5px;line-height:1.55}
+
+.stack{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}
+.stack li{font:12.5px var(--mono);color:var(--ice-dim);border:1px solid var(--line-2);border-radius:999px;padding:5px 12px}
+
+.foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:24px;font-size:13px;color:var(--faint)}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .features{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr}
+  .facts dt{border-bottom:none;padding-bottom:0}
+}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+
+.video{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0b0d12}
+.video .ratio{position:relative;aspect-ratio:16/9;width:100%}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video figcaption{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mute);padding:10px 14px;border-top:1px solid var(--line)}
+.video figcaption a{color:var(--wp);text-decoration:none}
+.video figcaption a:hover{text-decoration:underline}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:step}
+.steps li{position:relative;padding:18px 18px 20px;border:1px solid var(--line);border-radius:14px;background:rgba(8,10,14,.85);display:flex;flex-direction:column;gap:8px}
+.steps li::before{counter-increment:step;content:"Step " counter(step);font:12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--wp)}
+.steps p{color:var(--mute);font-size:14.5px;line-height:1.55}
+.steps code{font:12.5px var(--mono);color:var(--ink);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:5px}
+
+.uses{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}
+.uses li{display:grid;grid-template-columns:170px 1fr;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line)}
+.uses b{font-weight:500}
+.uses span{color:var(--mute);font-size:14.5px}
+@media (max-width:860px){ .steps{grid-template-columns:1fr 1fr} }
+@media (max-width:560px){ .steps{grid-template-columns:1fr} .uses{grid-template-columns:1fr} .uses li{grid-template-columns:1fr;gap:2px} }
+</style>
+</head>
+<body>
+<div class="floor" aria-hidden="true"></div>
+
+<main class="wrap">
+  <a class="back" href="../index.html#ai">← Back to the walk</a>
+
+  <header class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Waypoint 03 · AI projects</p>
+      <h1>AI Image Cataloger</h1>
+      <p class="lede">Drop in a batch of product photos and get each one tagged with its product type, colour and target audience, then sorted into ready-to-download groups. A vision model running on your own machine does the work, so no image ever leaves it.</p>
+      <div class="btns">
+        <a class="btn solid" href="#demo">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>Watch the demo
+        </a>
+        <a class="btn" href="https://github.com/himeshvats19/ai-image-cataloger" target="_blank" rel="noopener">View on GitHub ↗</a>
+      </div>
+    </div>
+    <dl class="facts">
+      <dt>Type</dt><dd>Personal project, open source (MIT)</dd>
+      <dt>Built for</dt><dd>E-commerce and product catalog teams</dd>
+      <dt>Runs</dt><dd>Fully offline, on your own machine</dd>
+      <dt>Cost</dt><dd>No cloud APIs, no per-image fees</dd>
+    </dl>
+  </header>
+
+  <figure class="video" id="demo">
+    <div class="ratio">
+      <iframe src="https://www.youtube-nocookie.com/embed/Bs36nx7Kv4w?rel=0" title="AI Image Cataloger demo" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <figcaption><span>Demo: cataloguing a batch of product images</span><a href="https://www.youtube.com/watch?v=Bs36nx7Kv4w" target="_blank" rel="noopener">Open on YouTube ↗</a></figcaption>
+  </figure>
+
+  <section class="section" aria-labelledby="why-h">
+    <div class="section-head">
+      <h2 id="why-h">The problem</h2>
+      <p>Tagging a product catalog by hand is slow and repetitive, and sending thousands of unreleased product photos to a cloud AI service raises cost and privacy questions. This tool does the tagging with a local model instead: private by default and free to run at any volume.</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how-h">
+    <div class="section-head"><h2 id="how-h">How it works</h2></div>
+    <ol class="steps">
+      <li><h3>Drop in a batch</h3><p>Drag up to 30 product images into the app at once.</p></li>
+      <li><h3>Pick a model</h3><p>Choose any vision model installed locally. It defaults to Google's Gemma 3; LLaVA and similar models work too.</p></li>
+      <li><h3>Get structured tags</h3><p>The model has to answer in a fixed format: product type, product colour, and men's, women's or unisex. No free-form text to clean up.</p></li>
+      <li><h3>Download by group</h3><p>Images are sorted by colour, audience and product, and each group downloads as its own ZIP.</p></li>
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="features-h">
+    <div class="section-head"><h2 id="features-h">Highlights</h2></div>
+    <ul class="features">
+      <li><span class="ix">01</span><h3>Vision analysis</h3><p>Identifies the product, its dominant colour and who it is for.</p></li>
+      <li><span class="ix">02</span><h3>100% local</h3><p>Runs through Ollama on your own hardware, with no cloud calls.</p></li>
+      <li><span class="ix">03</span><h3>Privacy-first</h3><p>Unreleased product photos never leave the machine.</p></li>
+      <li><span class="ix">04</span><h3>Zero running cost</h3><p>No API keys, subscriptions or per-image charges.</p></li>
+      <li><span class="ix">05</span><h3>Reliable output</h3><p>A strict response format keeps every result consistent and machine-readable.</p></li>
+      <li><span class="ix">06</span><h3>Simple interface</h3><p>Drag-and-drop upload, live scanning status and one-click group downloads.</p></li>
+    </ul>
+  </section>
+
+  <section class="section" aria-labelledby="uses-h">
+    <div class="section-head"><h2 id="uses-h">Where it helps</h2></div>
+    <ul class="uses">
+      <li><b>E-commerce catalogs</b><span>Tag thousands of product images automatically.</span></li>
+      <li><b>Digital asset libraries</b><span>Organise and categorise large image collections.</span></li>
+      <li><b>Inventory systems</b><span>Classify new product photography as it arrives.</span></li>
+      <li><b>Marketing teams</b><span>Give campaign images structured, searchable metadata.</span></li>
+    </ul>
+  </section>
+
+  <section class="section" aria-labelledby="stack-h">
+    <div class="section-head"><h2 id="stack-h">Built with</h2></div>
+    <ul class="stack">
+      <li>Ollama</li><li>Gemma 3</li><li>LLaVA</li><li>Node.js</li><li>Express</li><li>React 19</li><li>Vite</li><li>Tailwind CSS</li><li>Motion</li><li>JSZip</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <span>© 2026 Himesh Vats</span>
+    <a class="back" href="../index.html#ai">← Back to the walk</a>
+  </footer>
+</main>
+</body>
+</html>

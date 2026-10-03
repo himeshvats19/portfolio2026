@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Himesh Vats Portfolio</title>
+<meta name="description" content="Himesh Vats, UI architect and engineering lead. A scroll-driven 3D walk through 3D, data-driven, AI and mobile projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#06070a;
+  --ink:#eceef3;
+  --mute:#9aa0ab;
+  --faint:#5b616d;
+  --line:rgba(206,220,245,.12);
+  --line-2:rgba(206,220,245,.22);
+  --panel:rgba(9,11,15,.74);
+  --card:rgba(255,255,255,.035);
+  --card-hover:rgba(191,214,255,.07);
+  --ice:#bfd6ff;
+  --ice-dim:#7f95b8;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Geist", "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono:"Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gutter:clamp(16px, 4vw, 56px);
+  --solid:rgba(6,7,10,.9);
+  --vig:rgba(0,0,0,.55);
+  --img-bg:#0b0d12;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ice);outline-offset:3px;border-radius:4px}
+
+#scene{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(120% 90% at 50% 45%, transparent 55%, var(--vig) 100%)}
+
+
+/* Sections */
+main{position:relative;z-index:5}
+.stop{position:relative;min-height:100vh;display:flex;align-items:flex-start;padding:22vh var(--gutter) 18vh}
+.stop[data-side="right"]{justify-content:flex-end}
+.stop#top{align-items:center;padding-block:18vh 14vh}
+.panel{width:min(560px,100%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,3vw,34px);
+  -webkit-backdrop-filter:blur(14px) saturate(120%);backdrop-filter:blur(14px) saturate(120%);display:flex;flex-direction:column;gap:22px}
+.panel.bare{background:none;border:none;-webkit-backdrop-filter:none;backdrop-filter:none;padding:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ice-dim);display:flex;gap:10px;align-items:center}
+.eyebrow::before{content:"";width:18px;height:1px;background:currentColor}
+/* waypoint label colours: same as each waypoint's 3D graphic (WP_COLORS in the script) */
+#three-d .eyebrow{color:#aaa6ea}
+#data .eyebrow{color:#8fb6e6}
+#ai .eyebrow{color:#dcc394}
+#mobile .eyebrow{color:#cbb2dd}
+#about .eyebrow{color:#c9c0ae}
+#contact .eyebrow{color:#bfd6ff}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.025em}
+h1{font-size:clamp(2.4rem, 5.6vw, 4.6rem);line-height:.95;font-weight:800}
+h1 .thin{display:block;font-weight:400;color:var(--mute);font-size:clamp(1.05rem, 1.7vw, 1.4rem);letter-spacing:-.01em;line-height:1.15;margin-top:.35em}
+h2{font-size:2rem;line-height:1.1;font-weight:600}
+h3{font-size:1.2rem;line-height:1.2;font-weight:600;letter-spacing:-.01em}
+.lede{color:var(--mute);font-size:1.05rem;max-width:52ch;margin:0}
+p{margin:0}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stats div{background:var(--solid);padding:14px 16px}
+.stats b{display:block;font-family:var(--display);font-size:1.7rem;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stats span{font-size:12.5px;color:var(--mute);line-height:1.35;display:block}
+
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font:500 14px var(--body);padding:11px 18px;border-radius:999px;text-decoration:none;border:1px solid var(--line-2);color:var(--ink);background:transparent;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.btn:hover{border-color:var(--ink)}
+.btn.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.solid:hover{background:var(--ice);border-color:var(--ice)}
+
+/* Project cards */
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px;transition:background .25s,border-color .25s}
+.card:hover{background:var(--card-hover);border-color:var(--line-2)}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.where{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.card p{color:var(--mute);font-size:14.5px;line-height:1.55}
+.card p strong{color:var(--ink);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.tags li{font-family:var(--mono);font-size:11px;color:var(--ice-dim);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.links{display:flex;gap:14px;flex-wrap:wrap}
+.links a{font-size:13.5px;font-weight:500;color:var(--ice);text-decoration:none;border-bottom:1px solid transparent}
+.links a:hover{border-bottom-color:var(--ice)}
+.links a::after{content:" ↗";font-size:.9em}
+.links a.more::after{content:" →"}
+.links .private{font-size:13px;color:var(--faint)}
+
+/* About */
+.bio{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start}
+.bio img{width:100%;aspect-ratio:3/4;height:auto;border-radius:14px;object-fit:cover;object-position:50% 45%;border:1px solid var(--line-2)}
+#about .panel{width:min(780px,100%)}
+.bio p{color:var(--mute);font-size:15px}
+.bio-text{display:flex;flex-direction:column;gap:18px}
+.socials{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}
+.socials a{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 11px;border:1px solid var(--line-2);border-radius:999px;font-size:13.5px;color:var(--ink);text-decoration:none;transition:border-color .2s,color .2s,background .2s}
+.socials a:hover{border-color:var(--ice);color:var(--ice);background:rgba(191,214,255,.06)}
+.socials svg{width:16px;height:16px;flex:none}
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-left:1px solid var(--line-2)}
+.timeline li{position:relative;padding:0 0 16px 18px}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:-4px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--bg);border:1px solid var(--ice)}
+.timeline li:first-child::before{background:var(--ice)}
+.timeline .when{font-family:var(--mono);font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+.timeline .role{font-weight:500}
+.timeline .org{color:var(--mute);font-size:14px}
+.skills{display:flex;flex-direction:column;gap:10px}
+.skills div{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:14px}
+.skills dt,.skills .k{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);padding-top:2px}
+.skills .v{color:var(--mute)}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gallery figure{margin:0;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--img-bg)}
+.gallery img{display:block;width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;filter:grayscale(.35) contrast(1.02);transition:filter .3s, transform .5s}
+.gallery figure:hover img{filter:none;transform:scale(1.03)}
+.gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:24px 12px 10px;font-size:13px;line-height:1.3;color:#e8ebf1;background:linear-gradient(transparent, rgba(0,0,0,.8))}
+.gallery .wide{grid-column:span 2}
+.gallery .wide img{aspect-ratio:16/9}
+.g-devfest img{object-position:50% 62%}
+.g-walk img{object-position:50% 30%}
+.g-office img{object-position:50% 25%}
+h4{margin:0;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ice-dim);font-weight:500}
+
+/* Contact */
+.contact-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.contact-list > div{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:var(--solid);flex-wrap:wrap}
+.contact-list .k{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);min-width:80px}
+.contact-list .v{flex:1;font-size:15px;user-select:all;word-break:break-all}
+.contact-list a.v{text-decoration:none}
+.contact-list a.v:hover{color:var(--ice)}
+.copy{font:500 12px var(--mono);color:var(--ice);background:none;border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;cursor:pointer}
+footer.credit{position:relative;z-index:5;padding:0 var(--gutter) 40px;font-size:12px;color:var(--faint);max-width:760px}
+footer.credit a{color:var(--mute)}
+
+/* Rail */
+.rail{position:fixed;right:calc(var(--gutter) - 6px);top:50%;transform:translateY(-50%);z-index:15;display:flex;flex-direction:column;gap:14px;list-style:none;margin:0;padding:0}
+.rail a{display:block;width:10px;height:10px;border-radius:50%;border:1px solid var(--line-2);position:relative}
+.rail a.on{background:var(--ice);border-color:var(--ice)}
+.rail a span{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;white-space:nowrap;color:var(--mute);opacity:0;transition:opacity .2s;pointer-events:none}
+.rail a:hover span,.rail a:focus-visible span{opacity:1}
+
+.hint{font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.hint i{width:1px;height:28px;background:linear-gradient(var(--ice),transparent);animation:drop 1.6s ease-in-out infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+@media (max-width:900px){
+  .stop, .stop[data-side="right"]{justify-content:center;padding-top:52vh}
+  .stop#top{align-items:flex-end;padding-top:46vh}
+  .rail{display:none}
+}
+@media (max-width:520px){
+  .stats{grid-template-columns:1fr 1fr 1fr}
+  .stats b{font-size:1.3rem}
+  .bio{grid-template-columns:1fr}.bio img{width:min(260px,100%)}
+  .skills div{grid-template-columns:1fr;gap:2px}
+  .gallery{grid-template-columns:1fr}
+  .gallery .wide{grid-column:span 1}
+  .card-head{flex-direction:column;gap:2px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .hint i{animation:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+
+
+<ul class="rail" aria-label="Waypoints">
+  <li><a href="#top"><span>Start</span></a></li>
+  <li><a href="#three-d"><span>01 · 3D</span></a></li>
+  <li><a href="#data"><span>02 · Data driven</span></a></li>
+  <li><a href="#ai"><span>03 · AI projects</span></a></li>
+  <li><a href="#mobile"><span>04 · Mobile apps</span></a></li>
+  <li><a href="#about"><span>About</span></a></li>
+  <li><a href="#contact"><span>Contact</span></a></li>
+</ul>
+
+
+<main>
+  <!-- 0 · Start -->
+  <section class="stop" id="top" data-side="left">
+    <div class="panel bare">
+      <h1>Himesh Vats<span class="thin">I'm a full-stack software engineer building large-scale web platforms, creative 3D experiences and AI applications.</span></h1>
+      <p class="lede">Frontend lead at Walmart Global Tech with 13+ years in multi-tenant web systems, micro-frontends and production AI tools. Scroll down and he'll walk you through the work, one category at a time.</p>
+      <div class="stats">
+        <div><b>13+</b><span>years building for the web</span></div>
+        <div><b>8+</b><span>enterprise clients, including McDonald's and Amway</span></div>
+        <div><b>15+</b><span>developers managed and mentored</span></div>
+      </div>
+      <div class="btns">
+        <a class="btn solid" href="#three-d">Start the walk</a>
+        <a class="btn" href="#contact">Get in touch</a>
+      </div>
+      <div class="hint"><i></i>Scroll to walk</div>
+    </div>
+  </section>
+
+  <!-- 1 · 3D -->
+  <section class="stop" id="three-d" data-side="left">
+    <div class="panel">
+      <div class="eyebrow">Waypoint 01 · 3D</div>
+      <h2>Scroll-driven 3D stories</h2>
+      <p class="lede">Three.js and WebGL pieces where the scroll bar is the timeline: animated GLB models, choreographed cameras and frame rates kept smooth on real hardware.</p>
+      <div class="cards">
+        <article class="card">
+          <div class="card-head"><h3>Star Wars: The Last Watch</h3><span class="where">Personal · 3D web story</span></div>
+          <p>A cinematic fan story told entirely through scrolling. A TIE fighter on patrol, AT-AT walkers on the march, stormtroopers holding the line and a Star Destroyer jumping to lightspeed, with camera moves, lighting and load states tuned for smooth frame rates.</p>
+          <ul class="tags"><li>Three.js</li><li>WebGL</li><li>GLB animation</li><li>Scroll timeline</li></ul>
+          <div class="links"><a href="https://himeshvats19.github.io/star-wars-the-last-watch" target="_blank" rel="noopener">Live</a><a href="https://github.com/himeshvats19/star-wars-the-last-watch" target="_blank" rel="noopener">Code</a></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>Honda WR-V 2026</h3><span class="where">Demo · Automotive</span></div>
+          <p>A scroll-based marketing page for a compact SUV. Animated section transitions walk through design, engine, driver-assist and space, with spec callouts along the way.</p>
+          <ul class="tags"><li>Scroll animation</li><li>Product storytelling</li><li>Cloudflare Workers</li></ul>
+          <div class="links"><a href="https://honda-marketing-demo.vatshimesh.workers.dev" target="_blank" rel="noopener">Live</a></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>XDJ-XZ Landing Page</h3><span class="where">Demo · Pro audio</span></div>
+          <p>A scroll journey through a professional DJ system: jog wheels, mixer, performance pads and I/O, with animated stats and section navigation.</p>
+          <ul class="tags"><li>Scroll journey</li><li>Animated stats</li><li>Cloudflare Workers</li></ul>
+          <div class="links"><a href="https://xdj.vatshimesh.workers.dev" target="_blank" rel="noopener">Live</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · Data -->
+  <section class="stop" id="data" data-side="right">
+    <div class="panel">
+      <div class="eyebrow">Waypoint 02 · Data driven</div>
+      <h2>Dashboards and data at scale</h2>
+      <p class="lede">Analytics apps and reusable charting that other teams build on, running across markets on Walmart's platforms.</p>
+      <div class="cards">
+        <article class="card">
+          <div class="card-head"><h3>Walmart Connect International</h3><span class="where">Walmart · AdTech</span></div>
+          <p>Delivery and technical roadmap for Walmart's international AdTech platform, running across multiple markets and namespaces.</p>
+          <ul class="tags"><li>Micro-frontends</li><li>Multi-tenant</li><li>TypeScript</li><li>Node.js</li></ul>
+          <div class="links"><span class="private">Internal platform</span></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>InsightsAlly</h3><span class="where">Walmart · Analytics</span></div>
+          <p>A large-scale web app for analysing and visualising survey data, designed and built with React, Redux and Amcharts as part of Walmart's analytics ecosystem.</p>
+          <ul class="tags"><li>React</li><li>Redux</li><li>Amcharts</li><li>Data visualisation</li></ul>
+          <div class="links"><a class="more" href="projects/insights-ally.html">Project details</a><span class="private">Internal product</span></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>Data Visualisation Component Library</h3><span class="where">Walmart · NPM</span></div>
+          <p>A reusable React charting library published to NPM and picked up by other teams, including Walmart Scintilla. It cut cross-team chart-building work by <strong>about 30%</strong>.</p>
+          <ul class="tags"><li>React</li><li>NPM package</li><li>Design system</li></ul>
+          <div class="links"><a href="https://www.walmartdataventures.com/insights" target="_blank" rel="noopener">Scintilla</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · AI -->
+  <section class="stop" id="ai" data-side="left">
+    <div class="panel">
+      <div class="eyebrow">Waypoint 03 · AI projects</div>
+      <h2>AI that ships</h2>
+      <p class="lede">Retrieval-augmented agents, local LLMs and AI developer tools. One runs in production at Walmart; the rest are experiments in keeping AI grounded and useful.</p>
+      <div class="cards">
+        <article class="card">
+          <div class="card-head"><h3>AdTech Helpsite Agent</h3><span class="where">Walmart · RAG</span></div>
+          <p>A RAG chat agent on the Walmart AdTech Helpsite that answers merchant onboarding questions straight from the documentation, taking real load off the support team.</p>
+          <ul class="tags"><li>RAG</li><li>Vector search</li><li>Context-aware agents</li></ul>
+          <div class="links"><span class="private">Internal tool</span></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>AI Image Cataloger</h3><span class="where">Personal · Offline</span></div>
+          <p>Runs local LLMs through Ollama to classify, extract visual traits from and tag large e-commerce image catalogs. No cloud APIs, no vendor bills, and product data never leaves the machine.</p>
+          <ul class="tags"><li>Ollama</li><li>Local LLMs</li><li>Vision models</li><li>Privacy-first</li></ul>
+          <div class="links"><a class="more" href="projects/ai-image-cataloger.html">Project details</a><a href="https://github.com/himeshvats19/ai-image-cataloger" target="_blank" rel="noopener">Code</a></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>Doc AI Chatbot and Blog</h3><span class="where">Personal · RAG</span></div>
+          <p>An assistant built into a technical blog. Document chunking and embeddings let it answer questions about the articles with far fewer hallucinations than a plain chatbot.</p>
+          <ul class="tags"><li>Embeddings</li><li>Chunking</li><li>RAG</li></ul>
+          <div class="links"><a href="https://doc-ai-chatbot-sigma.vercel.app/" target="_blank" rel="noopener">Live</a><a href="https://github.com/himeshvats19/doc-ai-chatbot" target="_blank" rel="noopener">Code</a></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>Feature Studio</h3><span class="where">Experimental · AI SaaS</span></div>
+          <p>Users describe the feature they want in an embedded chat widget. AI generates a React component that follows the host app's coding standards and opens a pull request for review; approved features deploy straight from GitHub. Deterministic guardrails and state engines keep the generated code within the app's rules, and it plugs in with one script tag.</p>
+          <ul class="tags"><li>Generative AI</li><li>React</li><li>GitHub PRs</li><li>Guardrails</li></ul>
+          <div class="links"><a href="https://scratch-ten-taupe.vercel.app/" target="_blank" rel="noopener">Live</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · Mobile -->
+  <section class="stop" id="mobile" data-side="right">
+    <div class="panel">
+      <div class="eyebrow">Waypoint 04 · Mobile apps</div>
+      <h2>Apps in the pocket</h2>
+      <p class="lede">A native SwiftUI app built around on-device AI, and a React Native app for Walmart store teams.</p>
+      <div class="cards">
+        <article class="card">
+          <div class="card-head"><h3>PocketFold</h3><span class="where">Personal · Native iOS</span></div>
+          <p>Photograph or import a boarding pass, bill or ticket, and PocketFold turns it into one clean, readable card. Apple Intelligence reads the document <strong>entirely on-device</strong>, so it works in airplane mode and nothing goes to a server. It checks reference numbers and card formats, flags errors, and remembers your corrections for the next scan.</p>
+          <ul class="tags"><li>SwiftUI</li><li>Apple Intelligence</li><li>On-device AI</li><li>AES-GCM</li><li>iCloud sync</li></ul>
+          <div class="links"><a href="https://himeshvats19.github.io/pocketfold-landing/" target="_blank" rel="noopener">Website</a></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>URock</h3><span class="where">Walmart · React Native</span></div>
+          <p>An associate appreciation app that lets store managers recognise their team members on the spot, built for Walmart store operations.</p>
+          <ul class="tags"><li>React Native</li><li>iOS</li><li>Android</li></ul>
+          <div class="links"><span class="private">Internal app</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · About -->
+  <section class="stop" id="about" data-side="left">
+    <div class="panel">
+      <div class="eyebrow">About</div>
+      <h2>Engineer, lead, musician</h2>
+      <div class="bio">
+        <img src="assets/himesh.jpg" alt="Himesh Vats at the Twelve Apostles on the Great Ocean Road">
+        <div class="bio-text">
+          <p>I lead frontend engineering for Walmart's international AdTech platform: micro-frontend architecture, production AI tools and keeping a growing platform fast. Before that I led offshore teams of up to 15 developers for clients like Amway and McDonald's. I build with AI daily, with Claude Code and GitHub Copilot in the loop from scaffolding to review. Outside work, I make music.</p>
+          <ul class="socials" aria-label="Find me online">
+            <li><a href="https://www.linkedin.com/in/himeshvats/" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="4"/><path d="M7.5 10.5v6"/><circle cx="7.5" cy="7.4" r=".6" fill="currentColor"/><path d="M11.5 16.5v-6M11.5 13.2a2.7 2.7 0 0 1 5.4 0v3.3"/></svg>LinkedIn</a></li>
+            <li><a href="https://github.com/himeshvats19" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a></li>
+            <li><a href="https://www.instagram.com/himeshvats/" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r=".9" fill="currentColor" stroke="none"/></svg>Instagram</a></li>
+            <li><a href="mailto:vatshimesh@gmail.com">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>vatshimesh@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <h4>Path so far</h4>
+      <ol class="timeline">
+        <li><div class="when">May 2020 – now</div><div class="role">Senior Software Engineer (Lead)</div><div class="org">Walmart Global Tech, Bengaluru</div></li>
+        <li><div class="when">Jan 2015 – Apr 2020</div><div class="role">Lead Frontend Engineer</div><div class="org">ICF International, Bengaluru</div></li>
+        <li><div class="when">Jul 2013 – Dec 2014</div><div class="role">Frontend Engineer</div><div class="org">Koan Digital Solutions, Bengaluru</div></li>
+        <li><div class="when">2009 – 2013</div><div class="role">B.E. Computer Science</div><div class="org">Visvesvaraya Technological University · Udacity React Nanodegree, 2020</div></li>
+      </ol>
+      <h4>Toolkit</h4>
+      <div class="skills">
+        <div><span class="k">Architecture</span><span class="v">Micro-frontends, multi-tenant systems, federated UIs, system design</span></div>
+        <div><span class="k">Frontend</span><span class="v">TypeScript, React, Next.js, React Native, Redux, TanStack Query, Three.js, WebGL</span></div>
+        <div><span class="k">AI</span><span class="v">RAG, applied LLMs, vector databases, agents, Ollama, prompt design</span></div>
+        <div><span class="k">Backend</span><span class="v">Node.js, Express, Fastify, GCP, Cloudflare Workers, Docker, Kubernetes</span></div>
+      </div>
+      <h4>Moments</h4>
+      <div class="gallery">
+        <figure class="g-devfest"><img src="assets/devfest.jpg" alt="Himesh's attendee badge at Google Developer Groups DevFest Bangalore" loading="lazy"><figcaption>DevFest Bangalore, Google Developer Groups</figcaption></figure>
+        <figure class="g-walk"><img src="assets/demo-day-walkthrough.jpg" alt="Himesh walking a colleague through a demo on a tablet" loading="lazy"><figcaption>Walking a colleague through the demo</figcaption></figure>
+        <figure class="g-office"><img src="assets/recognition.jpg" alt="Himesh with colleagues at an office recognition session" loading="lazy"><figcaption>Office session with the team</figcaption></figure>
+        <figure><img src="assets/team-dinner.jpg" alt="Himesh with a group of colleagues at dinner" loading="lazy"><figcaption>Team dinner</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · Contact -->
+  <section class="stop" id="contact" data-side="left">
+    <div class="panel">
+      <div class="eyebrow">End of the path</div>
+      <h2>Let's build the next one</h2>
+      <p class="lede">Open to conversations about UI architecture, AI tooling and interactive 3D on the web.</p>
+      <div class="contact-list">
+        <div><span class="k">Email</span><span class="v" id="email">vatshimesh@gmail.com</span><button class="copy" id="copyEmail" type="button">Copy</button></div>
+        <div><span class="k">LinkedIn</span><a class="v" href="https://www.linkedin.com/in/himeshvats" target="_blank" rel="noopener">linkedin.com/in/himeshvats</a></div>
+        <div><span class="k">GitHub</span><a class="v" href="https://github.com/himeshvats19" target="_blank" rel="noopener">github.com/himeshvats19</a></div>
+      </div>
+      <div class="btns"><a class="btn" href="#top">Walk back to the start</a></div>
+    </div>
+  </section>
+</main>
+<footer class="credit">3D character by <a href="https://sketchfab.com/denysalmaral" target="_blank" rel="noopener">Denys Almaral</a>, site designed &amp; developed by Himesh Vats</footer>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ICE = new THREE.Color('#bfd6ff');
+// Colour of each waypoint's 3D graphic only: start, 3D, data, AI, mobile, about, contact.
+// The character, path, floor and page stay ice blue.
+const WP_COLORS = ['#bfd6ff', '#aaa6ea', '#8fb6e6', '#dcc394', '#cbb2dd', '#c9c0ae', '#bfd6ff'].map(c => new THREE.Color(c));
+const BG = new THREE.Color('#06070a');
+const UP = new THREE.Vector3(0,1,0);
+
+/* ---------- Copy email ---------- */
+document.getElementById('copyEmail').addEventListener('click', e => {
+  const t = document.getElementById('email').textContent;
+  const b = e.currentTarget;
+  navigator.clipboard?.writeText(t).then(() => { b.textContent = 'Copied'; setTimeout(()=>b.textContent='Copy',1600); })
+    .catch(() => { const r = document.createRange(); r.selectNodeContents(document.getElementById('email')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+});
+
+/* ---------- Renderer ---------- */
+const canvas = document.getElementById('scene');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+} catch (err) {
+  throw err;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 800 ? 1.5 : 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = BG.clone();
+scene.fog = new THREE.FogExp2(BG.getHex(), 0.03);
+
+const camera = new THREE.PerspectiveCamera(40, innerWidth/innerHeight, 0.05, 300);
+camera.position.set(4, 2, 4);
+
+scene.add(new THREE.HemisphereLight(0xcfdcff, 0x0a0b0e, 0.55));
+const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(4, 8, 6); scene.add(key);
+const rim = new THREE.DirectionalLight(0x9fc0ff, 2.4); rim.position.set(-6, 4, -8); scene.add(rim);
+scene.add(rim.target); scene.add(key.target);
+
+/* ---------- Path ---------- */
+const PTS = [
+  [0,0,0], [6,0,-12], [-2,0,-26], [8,0,-39], [0,0,-52], [-9,0,-62], [-4,0,-77]
+].map(p => new THREE.Vector3(...p));
+const curve = new THREE.CatmullRomCurve3(PTS, false, 'centripetal');
+const PATH_LEN = curve.getLength();
+// arc-length param of each waypoint
+const stopU = PTS.map(p => {
+  let best = 0, bd = Infinity;
+  for (let i = 0; i <= 3000; i++) { const u = i/3000; const d = curve.getPointAt(u).distanceToSquared(p); if (d < bd) { bd = d; best = u; } }
+  return best;
+});
+function frameAt(u){
+  u = THREE.MathUtils.clamp(u, 0, 1);
+  const P = curve.getPointAt(u);
+  const T = curve.getTangentAt(u).setY(0).normalize();
+  const S = new THREE.Vector3().crossVectors(T, UP).normalize(); // right-hand side
+  return { P, T, S };
+}
+
+/* Ground grid */
+const groundMat = new THREE.ShaderMaterial({
+  uniforms: { uCenter: { value: new THREE.Vector3() }, uColor: { value: ICE.clone() }, uBg: { value: BG.clone() } },
+  vertexShader: `varying vec3 vW; void main(){ vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix*viewMatrix*w; }`,
+  fragmentShader: `
+    uniform vec3 uCenter; uniform vec3 uColor; uniform vec3 uBg; varying vec3 vW;
+    float grid(vec2 p, float s){ vec2 q = p/s; vec2 g = abs(fract(q-0.5)-0.5)/fwidth(q); return 1.0 - min(min(g.x,g.y),1.0); }
+    void main(){
+      float d = distance(vW.xz, uCenter.xz);
+      float fade = exp(-d*0.075);
+      float a = max(grid(vW.xz,1.0)*0.10, grid(vW.xz,5.0)*0.22) * fade;
+      a += smoothstep(3.0, 0.0, d) * 0.05;
+      gl_FragColor = vec4(mix(uBg, uColor, a), 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`,
+});
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), groundMat);
+ground.rotation.x = -Math.PI/2; ground.position.set(0, 0, -38);
+scene.add(ground);
+
+/* Glowing route: walked part solid, road ahead dashed */
+const routeMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  uniforms: { uProg: { value: 0 }, uTime: { value: 0 }, uColor: { value: ICE.clone() } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform float uProg; uniform float uTime; uniform vec3 uColor; varying vec2 vUv;
+    void main(){
+      float walked = 1.0 - smoothstep(uProg - 0.002, uProg + 0.002, vUv.x);
+      float dash = step(0.55, fract(vUv.x*220.0 - uTime*0.6));
+      float a = walked*0.85 + (1.0-walked)*dash*0.28;
+      gl_FragColor = vec4(uColor*a, a);
+    }`,
+});
+const route = new THREE.Mesh(new THREE.TubeGeometry(curve, 900, 0.022, 6, false), routeMat);
+route.position.y = 0.012;
+scene.add(route);
+
+/* ---------- Stations ---------- */
+const ticking = []; // functions(t, dt)
+const wire = (opacity = .55, color = ICE) => new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false, fog: true });
+const lineMat = (opacity = .7) => new THREE.LineBasicMaterial({ color: ICE, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+
+function tint(group, color){
+  group.traverse(o => { const ms = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
+    ms.forEach(m => { if (m.color && m.color.equals(ICE)) m.color.copy(color); }); });
+}
+function place(group, i, side, fwd, y = 0, faceChar = true){
+  tint(group, WP_COLORS[i]);
+  const { P, T, S } = frameAt(stopU[i]);
+  group.position.copy(P).addScaledVector(S, side).addScaledVector(T, fwd); group.position.y += y;
+  if (faceChar) group.lookAt(P.x, group.position.y, P.z);
+  scene.add(group);
+  return group;
+}
+function pad(r = 1.6){
+  const g = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.RingGeometry(r, r + .02, 96), new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: .5, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite:false }));
+  ring.rotation.x = -Math.PI/2; ring.position.y = .015; g.add(ring);
+  const ring2 = ring.clone(); ring2.scale.setScalar(.6); ring2.material = ring.material.clone(); ring2.material.opacity = .25; g.add(ring2);
+  return g;
+}
+
+// 01 · 3D: a wireframe cube that morphs into a sphere, then a pyramid, then back
+{
+  const g = pad(2.0);
+  const N = 10, CUBE = 1.05, SPH = 1.32, APEX = 1.55, BASE = 1.0, HALF = 1.45;
+  // grid lines drawn on the six faces of a unit cube (no triangle diagonals)
+  const faces = [ // [fixed axis, sign]
+    [0, 1], [0, -1], [1, 1], [1, -1], [2, 1], [2, -1],
+  ];
+  const facePoint = (ax, sg, u, v) => { const q = [0,0,0]; q[ax] = sg; q[(ax+1)%3] = u; q[(ax+2)%3] = v; return q; };
+  const lineSrc = [], dotSrc = [];
+  for (const [ax, sg] of faces) {
+    for (let a = 0; a <= N; a++) {
+      const u = -1 + 2*a/N;
+      for (let b = 0; b < N; b++) {
+        const v0 = -1 + 2*b/N, v1 = -1 + 2*(b+1)/N;
+        lineSrc.push(facePoint(ax, sg, u, v0), facePoint(ax, sg, u, v1));   // lines along v
+        lineSrc.push(facePoint(ax, sg, v0, u), facePoint(ax, sg, v1, u));   // lines along u
+      }
+      for (let b = 0; b <= N; b++) dotSrc.push(facePoint(ax, sg, u, -1 + 2*b/N));
+    }
+  }
+  // the pyramid is convex, so each cube point is pushed along its direction until it meets the first face
+  const sideLen = Math.hypot(APEX + BASE, HALF);
+  const pyrPlanes = [
+    [0, -1, 0, BASE],
+    ...[[1,0],[-1,0],[0,1],[0,-1]].map(([x, z]) => [x*(APEX+BASE)/sideLen, HALF/sideLen, z*(APEX+BASE)/sideLen, HALF*APEX/sideLen]),
+  ];
+  function shapes(src){
+    const n = src.length, cube = new Float32Array(n*3), sph = new Float32Array(n*3), pyr = new Float32Array(n*3);
+    src.forEach(([x, y, z], k) => {
+      cube.set([x*CUBE, y*CUBE, z*CUBE], k*3);
+      const L = Math.hypot(x, y, z), dx = x/L, dy = y/L, dz = z/L;
+      sph.set([dx*SPH, dy*SPH, dz*SPH], k*3);
+      let t = Infinity;
+      for (const [nx, ny, nz, off] of pyrPlanes) { const d = nx*dx + ny*dy + nz*dz; if (d > 1e-6) t = Math.min(t, off/d); }
+      pyr.set([dx*t, dy*t, dz*t], k*3);
+    });
+    return [cube, sph, pyr];
+  }
+  const lineShapes = shapes(lineSrc), dotShapes = shapes(dotSrc);
+  const lineGeo = new THREE.BufferGeometry(); lineGeo.setAttribute('position', new THREE.BufferAttribute(lineShapes[0].slice(), 3));
+  const dotGeo = new THREE.BufferGeometry(); dotGeo.setAttribute('position', new THREE.BufferAttribute(dotShapes[0].slice(), 3));
+  const morph = new THREE.Group(); morph.position.y = 2.0;
+  morph.add(new THREE.LineSegments(lineGeo, lineMat(.5)));
+  morph.add(new THREE.Points(dotGeo, new THREE.PointsMaterial({ color: ICE, size: .045, transparent: true, opacity: .9, depthWrite: false, blending: THREE.AdditiveBlending })));
+  g.add(morph);
+  place(g, 1, -4.6, -2.6);
+
+  // cube → sphere → pyramid → cube: hold each shape, then ease into the next
+  const HOLD = 1.4, MOVE = 1.6, STEP = HOLD + MOVE;
+  const smooth = (x) => x*x*x*(x*(x*6 - 15) + 10);
+  function blend(attr, set, from, to, f){
+    const a = set[from], b = set[to], out = attr.array;
+    for (let k = 0; k < out.length; k++) out[k] = a[k] + (b[k] - a[k]) * f;
+    attr.needsUpdate = true;
+  }
+  ticking.push((t) => {
+    const cyc = t % (STEP*3), stage = Math.floor(cyc / STEP), local = cyc - stage*STEP;
+    const f = smooth(THREE.MathUtils.clamp((local - HOLD) / MOVE, 0, 1));
+    const from = stage, to = (stage + 1) % 3;
+    blend(lineGeo.attributes.position, lineShapes, from, to, f);
+    blend(dotGeo.attributes.position, dotShapes, from, to, f);
+    morph.rotation.y = t*.3;
+    morph.rotation.x = Math.sin(t*.4)*.12;
+    morph.position.y = 2.0 + Math.sin(t*.8)*.06;
+  });
+}
+
+// 02 · Data: live bar field + line chart
+{
+  const g = pad(2.4);
+  const box = new THREE.BoxGeometry(.36, 1, .36); box.translate(0, .5, 0);
+  const edges = new THREE.EdgesGeometry(box);
+  const bars = [];
+  for (let x = 0; x < 6; x++) for (let z = 0; z < 6; z++) {
+    const l = new THREE.LineSegments(edges, lineMat(.55));
+    l.position.set((x-2.5)*.6, 0, (z-2.5)*.6);
+    l.userData.seed = x*.9 + z*.55 + Math.random()*.4;
+    g.add(l); bars.push(l);
+  }
+  const N = 60, pts = new Float32Array(N*3);
+  const chartGeo = new THREE.BufferGeometry(); chartGeo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+  const chart = new THREE.Line(chartGeo, lineMat(.9)); chart.position.set(0, 3.6, 0); g.add(chart);
+  const axis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-2,0,0), new THREE.Vector3(2,0,0)]), lineMat(.25)); axis.position.copy(chart.position); g.add(axis);
+  place(g, 2, 3.4, 2.4, 0, true);
+  ticking.push((t) => {
+    for (const b of bars) b.scale.y = .25 + (Math.sin(t*.9 + b.userData.seed)*.5 + .5) * 2.2;
+    for (let i = 0; i < N; i++) { const x = i/(N-1); pts[i*3] = (x-.5)*4; pts[i*3+1] = Math.sin(x*9 + t*1.2)*.35 + Math.sin(x*23 - t*.7)*.12 + x*.6; pts[i*3+2] = 0; }
+    chartGeo.attributes.position.needsUpdate = true;
+  });
+}
+
+// 03 · AI: a vector space. Clusters of embedded documents; a glowing query point drifts
+// between them and links to its nearest neighbours, the way retrieval (RAG) works.
+{
+  const g = new THREE.Group();
+  const dot = document.createElement('canvas'); dot.width = dot.height = 64;
+  const dc = dot.getContext('2d'); const gr = dc.createRadialGradient(32,32,0,32,32,32);
+  gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.3,'rgba(255,245,225,.8)'); gr.addColorStop(1,'rgba(0,0,0,0)');
+  dc.fillStyle = gr; dc.fillRect(0,0,64,64);
+  const dotTex = new THREE.CanvasTexture(dot);
+
+  // the space itself: a faint bounding box
+  g.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(5, 3.2, 4)), lineMat(.16)));
+
+  // document clusters
+  const centres = [[-1.6,.6,-.6],[1.5,.9,.4],[.2,-.6,1.2],[-.8,-.9,-1.4],[1.3,-.3,-1.3]];
+  const docs = [];
+  const rand = (a) => (Math.random() - .5) * a;
+  centres.forEach(([x,y,z]) => { for (let k = 0; k < 90; k++) { const s = Math.random()*1.3; docs.push(new THREE.Vector3(x + rand(1)*s, y + rand(1)*s, z + rand(1)*s)); } });
+  g.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(docs),
+    new THREE.PointsMaterial({ size: .09, map: dotTex, color: ICE, transparent: true, opacity: .85, depthWrite: false, blending: THREE.AdditiveBlending })));
+
+  // the query and its halo
+  const query = new THREE.Mesh(new THREE.IcosahedronGeometry(.12, 1), new THREE.MeshBasicMaterial({ color: 0xfff3dc }));
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(.3, .01, 8, 64), new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: .9 }));
+  g.add(query, halo);
+
+  // links to the K nearest documents, rebuilt every frame as the query moves
+  const K = 8, linkPos = new Float32Array(K * 6);
+  const linkGeo = new THREE.BufferGeometry(); linkGeo.setAttribute('position', new THREE.BufferAttribute(linkPos, 3));
+  const linkMat = lineMat(.85);
+  g.add(new THREE.LineSegments(linkGeo, linkMat));
+
+  // the query wanders from cluster to cluster, pausing near each one
+  const q = new THREE.Vector3(1.1, .7, .1), from = q.clone(), to = q.clone();
+  let leg = 0, legStart = 0;
+  const pickNext = () => { const c = centres[Math.floor(Math.random()*centres.length)]; to.set(c[0] + rand(.8), c[1] + rand(.6), c[2] + rand(.8)); };
+  pickNext();
+
+  place(g, 3, 7.2, .6, 2.0, true); // off to his right, away from the road ahead
+
+  const byDist = docs.map(() => 0), idx = docs.map((_, n) => n);
+  ticking.push((t) => {
+    // move: 2.2s glide, then 1.4s pause
+    const LEG = 3.6, u = (t - legStart) / LEG;
+    if (u >= 1) { from.copy(to); pickNext(); legStart = t; leg++; }
+    const k = THREE.MathUtils.clamp(((t - legStart) / LEG) / .6, 0, 1), e = k*k*(3 - 2*k);
+    q.lerpVectors(from, to, e);
+    query.position.copy(q); halo.position.copy(q);
+    halo.lookAt(camera.position); // always face the viewer
+    halo.scale.setScalar(1 + .15*Math.sin(t*3));
+    query.rotation.y = t;
+
+    // nearest neighbours
+    for (let n = 0; n < docs.length; n++) byDist[n] = docs[n].distanceToSquared(q);
+    idx.sort((a, b) => byDist[a] - byDist[b]);
+    for (let n = 0; n < K; n++) { const d = docs[idx[n]]; linkPos.set([q.x, q.y, q.z, d.x, d.y, d.z], n*6); }
+    linkGeo.attributes.position.needsUpdate = true;
+    linkMat.opacity = .55 + .35*(1 - k); // links flare as the query settles into a new spot
+
+    g.position.y = 2.0 + Math.sin(t*.6)*.06;
+  });
+}
+
+// 04 · Mobile: orbiting phone frames
+{
+  const g = pad(1.8);
+  const rr = (w, h, r) => { const s = new THREE.Shape(); s.moveTo(-w/2+r,-h/2); s.lineTo(w/2-r,-h/2); s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r); s.lineTo(w/2,h/2-r); s.quadraticCurveTo(w/2,h/2,w/2-r,h/2); s.lineTo(-w/2+r,h/2); s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r); s.lineTo(-w/2,-h/2+r); s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2); return s; };
+  const outline = new THREE.BufferGeometry().setFromPoints(rr(.62, 1.28, .1).getPoints(8));
+  const screen = new THREE.ShapeGeometry(rr(.54, 1.14, .07), 6);
+  const orbit = new THREE.Group(); orbit.position.y = 2.3; g.add(orbit);
+  const phones = [];
+  for (let i = 0; i < 7; i++) {
+    const p = new THREE.Group();
+    p.add(new THREE.LineLoop(outline, lineMat(.85)));
+    const sc = new THREE.Mesh(screen, new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: .07, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false })); p.add(sc);
+    for (let k = 0; k < 4; k++) { const w = .18 + Math.random()*.24; const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-.2,.38-k*.12,.001), new THREE.Vector3(-.2+w,.38-k*.12,.001)]), lineMat(.35)); p.add(ln); }
+    const a = i/7*Math.PI*2; p.userData = { a, r: 1.9 + (i%2)*.35, y: (i%3-1)*.55 };
+    orbit.add(p); phones.push(p);
+  }
+  place(g, 4, -2.6, -2.8);
+  ticking.push((t) => { phones.forEach(p => { const a = p.userData.a + t*.25; p.position.set(Math.cos(a)*p.userData.r, p.userData.y + Math.sin(t+p.userData.a*2)*.15, Math.sin(a)*p.userData.r); p.rotation.y = -a + Math.PI/2; }); });
+}
+
+// About: floating photo frames
+{
+  const g = new THREE.Group();
+  const tl = new THREE.TextureLoader();
+  const photos = ['devfest.jpg','demo-day-walkthrough.jpg','recognition.jpg','team-dinner.jpg'];
+  const frames = [];
+  photos.forEach((f, i) => {
+    const fr = new THREE.Group();
+    const mat = new THREE.MeshBasicMaterial({ color: 0xb9c3d6, transparent: true, opacity: .0, side: THREE.DoubleSide, fog: true });
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+    tl.load('assets/' + f, tex => { tex.colorSpace = THREE.SRGBColorSpace; mat.map = tex; mat.opacity = .7; const a = tex.image.width / tex.image.height; plane.scale.set(1.5*a, 1.5, 1); border.scale.set(1.5*a + .08, 1.58, 1); mat.needsUpdate = true; });
+    const border = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-.5,-.5,0),new THREE.Vector3(.5,-.5,0),new THREE.Vector3(.5,.5,0),new THREE.Vector3(-.5,.5,0)]), lineMat(.6));
+    border.position.z = -.005;
+    fr.add(plane, border);
+    const a = (i - (photos.length - 1) / 2) * .52;
+    fr.position.set(Math.sin(a)*4.2, 1.9 + (i%2)*.9, -Math.cos(a)*4.2 + 4.2);
+    fr.lookAt(0, fr.position.y, 4.2 + 2);
+    fr.userData.base = fr.position.y;
+    g.add(fr); frames.push(fr);
+  });
+  place(g, 5, 3.2, -1.0, 0, true);
+  g.rotateY(Math.PI);
+  ticking.push((t) => frames.forEach((f, i) => f.position.y = f.userData.base + Math.sin(t*.7 + i)*.08));
+}
+
+// Contact: portal ring
+{
+  const g = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.2, .03, 12, 160), new THREE.MeshBasicMaterial({ color: ICE, toneMapped: false }));
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.45, .01, 8, 160), new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: .4 }));
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(2.2, 64), new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: .05, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
+  g.add(ring, ring2, disc);
+  place(g, 6, 0, 4.5, 2.3, true);
+  ticking.push((t) => { ring2.rotation.z = t*.2; ring.scale.setScalar(1 + Math.sin(t*1.5)*.01); });
+}
+
+/* Dust */
+{
+  const n = innerWidth < 800 ? 900 : 1800, arr = new Float32Array(n*3);
+  for (let i = 0; i < n; i++) { arr[i*3] = THREE.MathUtils.randFloat(-22, 26); arr[i*3+1] = Math.random()*9; arr[i*3+2] = THREE.MathUtils.randFloat(-92, 12); }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+  const dust = new THREE.Points(geo, new THREE.PointsMaterial({ color: ICE, size: .028, transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending }));
+  scene.add(dust);
+  if (!reduceMotion) ticking.push((t) => { dust.position.y = Math.sin(t*.1)*.3; dust.rotation.y = Math.sin(t*.03)*.02; });
+}
+
+/* ---------- Character ---------- */
+const charRoot = new THREE.Group(); scene.add(charRoot);
+const rimU = { uRimColor: { value: ICE.clone() }, uXrayBase: { value: new THREE.Color(0,0,0) }, uXray: { value: 1 } };
+let mixer = null, action = null, wireMat = null;
+const restTimes = []; // clip times where his feet are together
+let frozen = false;
+
+// soft contact shadow
+{
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+  const gr = x.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,'rgba(0,0,0,.75)'); gr.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0,0,128,128);
+  const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }));
+  sh.rotation.x = -Math.PI/2; sh.position.y = .02; charRoot.add(sh);
+  const halo = new THREE.Mesh(new THREE.RingGeometry(.55, .565, 64), new THREE.MeshBasicMaterial({ color: ICE, transparent: true, opacity: .45, blending: THREE.AdditiveBlending, depthWrite: false }));
+  halo.rotation.x = -Math.PI/2; halo.position.y = .018; charRoot.add(halo);
+}
+
+function onModel(gltf){
+  const model = gltf.scene;
+  let box = new THREE.Box3().setFromObject(model);
+  const s = 1.8 / (box.max.y - box.min.y);
+  model.scale.setScalar(s);
+  box = new THREE.Box3().setFromObject(model);
+  model.position.y -= box.min.y;
+  model.position.x -= (box.min.x + box.max.x)/2;
+  model.position.z -= (box.min.z + box.max.z)/2;
+
+  wireMat = new THREE.MeshBasicMaterial({ color: ICE, wireframe: true, transparent: true, opacity: .05, blending: THREE.AdditiveBlending, depthWrite: false });
+  const skinned = [];
+  model.traverse(o => { if (o.isSkinnedMesh) skinned.push(o); });
+  skinned.forEach(o => {
+    o.frustumCulled = false;
+    const m = o.material;
+    m.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, rimU);
+      sh.fragmentShader = 'uniform vec3 uRimColor; uniform vec3 uXrayBase; uniform float uXray;\n' + sh.fragmentShader.replace('#include <dithering_fragment>', `
+        #include <dithering_fragment>
+        float fr = pow(1.0 - abs(dot(normal, normalize(vViewPosition))), 2.4);
+        vec3 xr = mix(gl_FragColor.rgb, uXrayBase + gl_FragColor.rgb*0.08, uXray);
+        gl_FragColor.rgb = mix(xr, uRimColor, clamp(fr * (0.14 + uXray*0.75), 0.0, 1.0));
+      `);
+    };
+    m.needsUpdate = true;
+    const w = new THREE.SkinnedMesh(o.geometry, wireMat);
+    w.position.copy(o.position); w.quaternion.copy(o.quaternion); w.scale.copy(o.scale);
+    w.bind(o.skeleton, o.bindMatrix); w.frustumCulled = false;
+    o.parent.add(w);
+  });
+
+  // phone glow on the right hand
+  let hand = null; model.traverse(o => { if (!hand && /R_?Hand/i.test(o.name)) hand = o; });
+  if (hand) { const pl = new THREE.PointLight(0xcfe0ff, 0.5, 1.2, 1.5); hand.add(pl); }
+
+  charRoot.add(model);
+  mixer = new THREE.AnimationMixer(model);
+  action = mixer.clipAction(gltf.animations[0]); action.play();
+
+  // Find the "feet together" moments of the walk cycle, so he can stop in a natural standing pose
+  {
+    const clipLen = action.getClip().duration, S = 80, gaps = [];
+    let lf = null, rf = null;
+    model.traverse(o => { if (/L_?Foot/i.test(o.name)) lf = o; if (/R_?Foot/i.test(o.name)) rf = o; });
+    if (lf && rf) {
+      const a = new THREE.Vector3(), b = new THREE.Vector3();
+      for (let k = 0; k < S; k++) {
+        mixer.setTime(k / S * clipLen); model.updateMatrixWorld(true);
+        lf.getWorldPosition(a); rf.getWorldPosition(b);
+        gaps.push(Math.hypot(a.x - b.x, a.z - b.z));
+      }
+      for (let k = 0; k < S; k++) {
+        const g = gaps[k];
+        if (g <= gaps[(k + S - 1) % S] && g <= gaps[(k + 1) % S]) restTimes.push(k / S * clipLen);
+      }
+    }
+    if (!restTimes.length) restTimes.push(0);
+    mixer.setTime(0);
+  }
+}
+{
+  const loader = new GLTFLoader();
+  const fail = (err) => console.error(err);
+  const inline = document.getElementById('glb-data');
+  if (inline) {
+    const bin = Uint8Array.from(atob(inline.textContent.trim()), c => c.charCodeAt(0));
+    loader.parse(bin.buffer, '', onModel, fail);
+  } else {
+    loader.load('assets/character.glb', onModel, undefined, fail);
+  }
+}
+
+
+/* ---------- Camera rigs, one per section ----------
+   a = metres along walking direction (positive = in front of him)
+   b = metres to his right, c = height
+   la/lb/lc = look-at offset in the same frame; shift = where he sits on screen (fraction of width) */
+const RIGS = [
+  { a: 4.4, b:-1.2, c:1.35, la: 0,   lb:0,   lc:1.05, fov:36, shift: .22 }, // start: face to face
+  { a: 1.4, b: 5.4, c:1.9,  la:-1.0, lb:-.6, lc:1.1,  fov:38, shift: .21 }, // 3D: side profile
+  { a:-5.0, b:-3.8, c:4.8,  la: 1.6, lb:1.3, lc:0.9,  fov:44, shift:-.2  }, // data: raised three-quarter view
+  { a:-.9,  b:-3.1, c:2.3,  la: .6,  lb:7.2, lc:1.7,  fov:48, shift: .17 }, // AI: over his left shoulder, looking side-on at the network
+  { a: 2.7, b: 1.7, c:0.28, la: 0,   lb:-.4, lc:1.75, fov:56, shift:-.2  }, // mobile: worm's-eye
+  { a: 5.2, b:-5.4, c:3.0,  la: 0,   lb:1.2, lc:1.3,  fov:42, shift: .2  }, // about: wide three-quarter
+  { a:-6.5, b: 2.4, c:9.5,  la: 3.5, lb:0,   lc:0.8,  fov:44, shift: .18 }, // contact: high, looking at the portal
+];
+const sections = [...document.querySelectorAll('main > .stop')];
+const railLinks = [...document.querySelectorAll('.rail a')];
+
+function scrollProgress(){
+  const H = innerHeight; let t = 0;
+  for (let j = 1; j < sections.length; j++) {
+    const top = sections[j].getBoundingClientRect().top;
+    t += THREE.MathUtils.clamp((H - top) / (H*.75), 0, 1);
+  }
+  return t;
+}
+const ease = (x) => x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
+function rigAt(t){
+  const i = Math.min(Math.floor(t), RIGS.length - 2), f = ease(THREE.MathUtils.clamp(t - i, 0, 1));
+  const A = RIGS[i], B = RIGS[i+1], r = {};
+  for (const k in A) r[k] = A[k] + (B[k] - A[k]) * f;
+  return r;
+}
+function uAt(t){
+  const i = Math.min(Math.floor(t), stopU.length - 2), f = ease(THREE.MathUtils.clamp(t - i, 0, 1));
+  return stopU[i] + (stopU[i+1] - stopU[i]) * f;
+}
+
+/* ---------- Post ---------- */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .6, .4, .55);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+let W = innerWidth, H = innerHeight, narrow = W < 900;
+function resize(){
+  W = innerWidth; H = innerHeight; narrow = W < 900;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, W < 800 ? 1.5 : 2));
+  renderer.setSize(W, H); composer.setSize(W, H); bloom.setSize(W, H);
+  camera.aspect = W/H; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+const pointer = { x: 0, y: 0 };
+addEventListener('pointermove', e => { pointer.x = e.clientX / W - .5; pointer.y = e.clientY / H - .5; });
+
+
+/* ---------- Loop ---------- */
+const clock = new THREE.Clock();
+let tSmooth = scrollProgress(), charU = uAt(tSmooth), facing = 0, dir = 1, camInit = false, shiftSm = 0, activeIdx = -1;
+const camPos = new THREE.Vector3(), camLook = new THREE.Vector3(), lookSm = new THREE.Vector3();
+{ const { T } = frameAt(charU); facing = Math.atan2(T.x, T.z); }
+
+function tick(){
+  const dt = Math.min(clock.getDelta(), .05), time = clock.elapsedTime;
+
+  // scroll → progress → position on path
+  const tTarget = scrollProgress();
+  const snap = window.__snap === true;
+  tSmooth += (tTarget - tSmooth) * (snap ? 1 : 1 - Math.exp(-dt * (reduceMotion ? 12 : 3.2)));
+  const uTarget = uAt(tSmooth);
+  const prevU = charU;
+  charU += (uTarget - charU) * (snap ? 1 : 1 - Math.exp(-dt * 4));
+  const du = charU - prevU, speed = (du * PATH_LEN) / Math.max(dt, 1e-4); // m/s
+  if (Math.abs(speed) > .25) dir = Math.sign(speed);
+
+  const { P, T, S } = frameAt(charU);
+  charRoot.position.copy(P);
+  const targetFacing = Math.atan2(T.x*dir, T.z*dir);
+  let dA = targetFacing - facing; dA = Math.atan2(Math.sin(dA), Math.cos(dA));
+  facing += dA * (1 - Math.exp(-dt * 6));
+  charRoot.rotation.y = facing;
+
+  const pace = THREE.MathUtils.clamp(1 + Math.abs(speed)*.28, 1, 2.6);
+  if (mixer) {
+    // Walking while the camera and he are still travelling; once he has arrived, finish the step and stand still
+    const moving = Math.abs(speed) > .06 || Math.abs(tTarget - tSmooth) > .004;
+    if (moving) {
+      frozen = false;
+      action.timeScale += (pace - action.timeScale) * .15;
+      mixer.update(dt);
+    } else if (!frozen) {
+      const before = action.time;
+      action.timeScale += (1 - action.timeScale) * .15;
+      mixer.update(dt);
+      const after = action.time;
+      // did we pass a feet-together moment this frame? (handles the loop wrapping)
+      const hit = restTimes.find(r => after >= before ? (r > before && r <= after) : (r > before || r <= after));
+      if (hit !== undefined) { action.time = hit; action.timeScale = 0; mixer.update(0); frozen = true; }
+    }
+  }
+  if (wireMat) wireMat.opacity = .2;
+
+  // camera rig in the path frame
+  const r = rigAt(tSmooth);
+  const par = reduceMotion ? 0 : 1;
+  camPos.copy(P).addScaledVector(T, r.a).addScaledVector(S, r.b + pointer.x*.6*par); camPos.y += r.c - pointer.y*.35*par;
+  camLook.copy(P).addScaledVector(T, r.la).addScaledVector(S, r.lb); camLook.y += r.lc;
+  if (!camInit) { camera.position.copy(camPos); lookSm.copy(camLook); camInit = true; }
+  const k = snap ? 1 : 1 - Math.exp(-dt * (reduceMotion ? 10 : 3.5));
+  camera.position.lerp(camPos, k); lookSm.lerp(camLook, k);
+  camera.lookAt(lookSm);
+  camera.fov += (r.fov - camera.fov) * k;
+
+  // put him beside the text panel (desktop) or above it (phone)
+  const sx = narrow ? 0 : r.shift, sy = narrow ? .2 : 0;
+  shiftSm += (sx - shiftSm) * k;
+  camera.setViewOffset(W, H, -shiftSm * W, sy * H, W, H);
+  camera.updateProjectionMatrix();
+
+  // lights follow
+  key.position.copy(P).add(new THREE.Vector3(4, 8, 6)); key.target.position.copy(P);
+  rim.position.copy(P).addScaledVector(T, -dir*6).add(new THREE.Vector3(0, 4, 0)); rim.target.position.copy(P);
+
+  groundMat.uniforms.uCenter.value.copy(P);
+
+  routeMat.uniforms.uProg.value = charU; routeMat.uniforms.uTime.value = time;
+  for (const f of ticking) f(time, dt);
+
+  // rail state
+  const idx = Math.round(tTarget);
+  if (idx !== activeIdx) {
+    activeIdx = idx;
+    railLinks.forEach((a, i) => a.classList.toggle('on', i === idx));
+  }
+
+  composer.render();
+}
+renderer.setAnimationLoop(tick);
+</script>
+</body>
+</html>
